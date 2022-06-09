@@ -1,26 +1,21 @@
 #!/usr/bin/ruby
 
-# RS41 追跡プログラム 
+# RS41 Tracking program
 
-# 必要な入力ファイル
-# habhub.kml : Habhub の予測ファイル(必須)
-# retriever.txt : 追跡者の位置ファイル(必須)
-#     経度,緯度,高度,速度,進行方位
-# (例)138.56045,35.68215,0,1.2,187
+# required files
+#   habhub.kml : predicted path of Habhub
+#   retriever.txt : potsition of retriever
+#   (ex.)138.56045,35.68215,0,1.2,187
 
-# 出力ファイル ( 事前準備不要 )
-# realtime.kml : Google earth で読み込むためのファイル
-
-# その他の中間ファィルは自動生成される # 事前準備は不要
-# 同名のファイルがあると上書きされる
-# ワーキングディレクトリに無関係なものを置かないのが原則
+# output file
+# realtime.kml : for Google earth
 
 require 'fileutils'
 require 'time'
 require 'timeout'
 include Math
 
-# init を指定すると軌跡情報を消去する。
+# init option reases all paths
 #
 init = false
 ARGV.each{ |arg|
@@ -181,6 +176,17 @@ File.open( RealtimeKmlFile, 'w' ) do |f|
   f.print( kml_realtime().sub( /%KmlFile%/, KmlFile ) )
 end
 
+last_log_line = nil
+if File.exist?( LogFile )
+  File.open( LogFile, "r" ){ |f|
+    f.each_line{ |line|
+      if line =~ / lon: /
+        last_log_line = line
+      end
+    }
+  }
+end
+
 voice = VoiceOver.new( VoiceFile )
 prev_time = Time.now
 Interval = 10
@@ -194,6 +200,10 @@ while true
       line = STDIN.gets
     }
   rescue Timeout::Error
+  end
+
+  if line == "" and ! lon and last_log_line
+    line = last_log_line
   end
 
   if line and line.size > 0 
@@ -256,7 +266,7 @@ while true
   voice.flush( "%s方向 %d時 %s : %.0f度 %s" % 
              [ VNEWS[iazim], h, m30>0 ? "半":"", elev, dist_string(hdist) ] )
 
-  # kmlファイルの作成
+  # creating a kml file
 
   kml = kml_template
 
@@ -302,7 +312,7 @@ while true
 
 end
 
-# KML テンプレート
+# KML template
 
 BEGIN{
 
