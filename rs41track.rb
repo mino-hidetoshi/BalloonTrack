@@ -191,6 +191,7 @@ voice = VoiceOver.new( VoiceFile )
 prev_time = Time.now
 Interval = 10
 updated = false
+lat = lon = alt = nil
 
 while true
 
