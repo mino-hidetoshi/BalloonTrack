@@ -154,10 +154,10 @@ class VoiceOver
 end # Class VoiceOver
 
 def dist_string d
-  return "%dkm" % (d/1000.0).round if d >= 100000.0
+  return "%dキロメートル" % (d/1000.0).round if d >= 100000.0
   return "%.1fキロメートル" % (d/1000.0) if d >= 10000.0
-  return "%dm" % (d.round(-1)) if d >= 1000.0
-  return "%dm" % (d.round)
+  return "%dメートル" % (d.round(-1)) if d >= 1000.0
+  return "%dメートル" % (d.round)
 end
 
 #
