@@ -1,23 +1,19 @@
 #!/usr/bin/ruby
 
-# 気球追跡プログラム Ver. 1.11
+# Balloon Tracking using LoRa Ver. 1.11
 
-# コマンドラインオプション ( 順序は自由 )
-# init : habhub の予測情報を用いて位置を初期化する
-# local : 位置情報をサーバに送らない
+# options
+# init : initialize position using habhub prediction
+# local : doesn't send data to server
 
-# 必要な入力ファイル
-# habhub.kml : Habhub の予測ファイル(必須)
-# retriever.txt : 追跡者の位置ファイル(必須)
-#     経度,緯度,高度,速度,進行方位
-# (例)138.56045,35.68215,0,1.2,187
+# required files
+# habhub.kml : Habhub prediction
+# retriever.txt : retreiever's potition
+#       long, lat, alt, speed, direction
+# (ex.) 138.56045,35.68215,0,1.2,187
 
-# 出力ファイル ( 事前準備不要 )
-# realtime.kml : Google earth で読み込むためのファイル
-
-# その他の中間ファィルは自動生成される # 事前準備は不要
-# 同名のファイルがあると init で上書きされる
-# ワーキングディレクトリに無関係なものを置かないのが原則
+# output file for google earth
+# realtime.kml 
 
 require 'socket'
 require 'time'
@@ -25,8 +21,6 @@ require 'serialport'
 require 'fileutils'
 include Math
 
-# コマンドラインで local を指定するとサーバに送信しない。
-# init を指定すると軌跡情報を消去し、Habhub 予測で初期化する。
 #
 local = init = false
 ARGV.each{ |arg|
