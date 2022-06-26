@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-# RS41 Tracking program
+# Radio Sonde Tracking program
 
 # required files
 #   habhub.kml : predicted path of Habhub
@@ -154,14 +154,14 @@ class VoiceOver
 end # Class VoiceOver
 
 class Vertical 
-   def initialize( alt = 0.0 )
-      @prev_alt = alt
-   end 
-   def update( new_alt )
-      alt = @prev_alt
-      @prev_alt = new_alt
-      return new_alt - alt
-   end
+  def initialize( alt = 0.0 )
+     @prev_alt = alt
+  end 
+  def update( new_alt )
+     alt = @prev_alt
+     @prev_alt = new_alt
+     return new_alt - alt
+  end
 end
 
 def parse line
