@@ -4,7 +4,7 @@
 
 # required files
 #   habhub.kml : predicted path of Habhub
-#   retriever.txt : potsition of retriever
+#   retriever.txt : potsition and heading of retriever
 #   (ex.)138.56045,35.68215,0,1.2,187
 
 # output file
@@ -153,6 +153,33 @@ class VoiceOver
   end
 end # Class VoiceOver
 
+class Vertical 
+   def initialize( alt = 0.0 )
+      @prev_alt = alt
+   end 
+   def update( new_alt )
+      alt = @prev_alt
+      @prev_alt = new_alt
+      return new_alt - alt
+   end
+end
+
+def parse line
+
+#            for rs41              for iMS-100
+  if line =~ /\[00000\]/ or line =~ /\(ok\)\[OK\]/
+     return line.partition( /lat:/ )[2].to_f,
+            line.partition( /lon:/ )[2].to_f,
+            line.partition( /alt:/ )[2].to_f,
+            line.partition( /vH:/ )[2].to_f,
+            line.partition( /D:/ )[2].to_f,
+            line.partition( /vV:/ )[2].to_f
+  else
+     return nil
+  end
+
+end
+
 def dist_string d
   return "%dキロメートル" % (d/1000.0).round if d >= 100000.0
   return "%.1fキロメートル" % (d/1000.0) if d >= 10000.0
@@ -191,6 +218,7 @@ voice = VoiceOver.new( VoiceFile )
 prev_time = Time.now
 Interval = 10
 updated = false
+v_v = Vertical.new( 0.0 )
 lat = lon = alt = nil
 
 while true
@@ -214,13 +242,14 @@ while true
       f.print line
     end
 
-    fields = line.split(/\s*lat:\s*|\s*lon:\s*|\s*alt:\s*|\s*vH:\s*|\s*D:\s*|\s*vV:\s*|\s*T=\s*|\s*#\s*/)
+    lat, lon, alt, hv, dir, vv  = parse line
+	  
+    next unless lat
 
-    next if fields.size < 7
-
-    lat, lon, alt = fields[1].to_f, fields[2].to_f, fields[3].to_f
-    hv, dir, vv = fields[4].to_f, fields[5].to_f, fields[6].to_f
-
+    if vv == 0.0 
+      vv = v_v.update( alt );
+    end
+	  
     File.open( BalloonTrackFile, 'a') do |f|
        f.printf( Format_p5nl, lon, lat, alt )
     end
@@ -241,7 +270,7 @@ while true
     f.printf("%1.5f,%1.5f,%1.1f\n", retriever_lng, retriever_lat, heading )
   end
 
-  next unless lon
+  next unless lat
 
   azim, hdist, elev =
     direction( lon, lat, retriever_lng, retriever_lat, alt, retriever_alt )
