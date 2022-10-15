@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-# Balloon Tracking using LoRa Ver. 1.11
+# Balloon Tracking using LoRa Ver. 1.12 2022.10.13
 
 # options
 # init : initialize position using habhub prediction
@@ -282,7 +282,8 @@ class Habhub
             coord_sec = true
             next
           end
-          @coords.push line.split(/\s*,\s*/).map{ |x| x.to_f }  if coord_sec
+          fields = line.split(/\s*,\s*/)
+          @coords.push fields.map{ |x| x.to_f } if coord_sec and fields.size > 2
         }
       end
       @coords.freeze
